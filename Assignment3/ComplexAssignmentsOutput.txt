@@ -1,0 +1,27 @@
+001 VAR
+002     x, y, z : complex;
+003 
+004 BEGIN 
+005     x.re := 15;
+          ^
+*** Invalid field [at "re"]
+                ^
+*** Incompatible types [at "15"]
+006     x.im := 37;
+          ^
+*** Invalid field [at "im"]
+                ^
+*** Incompatible types [at "37"]
+007     
+008     y.re := -12.34;
+          ^
+*** Invalid field [at "re"]
+                ^
+*** Incompatible types [at "-"]
+009     y.im := 3.1415926;
+          ^
+*** Invalid field [at "im"]
+                ^
+*** Incompatible types [at "3.1415926"]
+010     
+011     z := x;
