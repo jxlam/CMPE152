@@ -86,19 +86,19 @@ void Predefined::initialize_types(SymTabStack *symtab_stack)
     complex_id = symtab_stack->enter_local("complex");
     complex_type = TypeFactory::create_type((TypeForm) TF_SCALAR);
     complex_type->set_identifier(complex_id);
-   	complex_id->set_definition((Definition) DF_TYPE);
+    complex_id->set_definition((Definition) DF_TYPE);
     complex_id->set_typespec(complex_type);
 
 
-  	re_id = symtab_stack->enter_local("re");
-  	im_id = symtab_stack->enter_local("im");
-  	complex_type = TypeFactory::create_type((TypeForm) TF_SCALAR);
-  	complex_type->set_identifier(re_id);
-	complex_type->set_identifier(im_id);
- 	re_id->set_typespec(real_type);
-  	im_id->set_typespec(real_type);
-   	re_id->set_definition((Definition) DF_FIELD);
-  	im_id->set_definition((Definition) DF_FIELD);
+    re_id = symtab_stack->enter_local("re");
+    im_id = symtab_stack->enter_local("im");
+    complex_type = TypeFactory::create_type((TypeForm) TF_SCALAR);
+    complex_type->set_identifier(re_id);
+    complex_type->set_identifier(im_id);
+    re_id->set_typespec(real_type);
+    im_id->set_typespec(real_type);
+    re_id->set_definition((Definition) DF_FIELD);
+    im_id->set_definition((Definition) DF_FIELD);
 
 
     // Undefined type.
