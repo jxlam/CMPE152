@@ -60,10 +60,7 @@ private:
      */
     static void initialize_constants(SymTabStack *symtab_stack);
 
-    /*
-    static SymTabEntry *enter_standard(SymTabStack *symtab_stack,
-                                       Definition defn, string name,
-                                       RoutineCode routine_code);*/
+    
 };
 
 }}}  // namespace wci::intermediate::symtabimpl
