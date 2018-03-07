@@ -38,8 +38,8 @@ public:
     static SymTabEntry *false_id;
     static SymTabEntry *true_id;
     static SymTabEntry *complex_id;
-    static SymTabEntry *re_id;
-    static SymTabEntry *im_id;
+   // static SymTabEntry *re_id;
+   // static SymTabEntry *im_id;
 
     /**
      * Initialize a symbol table stack with predefined identifiers.
@@ -60,7 +60,6 @@ private:
      */
     static void initialize_constants(SymTabStack *symtab_stack);
 
-    
 };
 
 }}}  // namespace wci::intermediate::symtabimpl
