@@ -128,7 +128,7 @@ void Predefined::initialize_constants(SymTabStack *symtab_stack)
                                 constants);
 }
 
-
+ 
 
 
 }}}  // namespace wci::intermediate::symtabimpl
