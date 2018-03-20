@@ -65,3 +65,4 @@ private:
 }}}  // namespace wci::intermediate::symtabimpl
 
 #endif /* PREDEFINED_H_ */
+ 
