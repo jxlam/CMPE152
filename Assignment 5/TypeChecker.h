@@ -38,7 +38,7 @@ public:
     static bool is_complex(TypeSpec *typespec);
 
     //check if both type spec are complex
-	static bool are_both_complex(TypeSpec *typespec1, TypeSpec *typespec2);
+    static bool are_both_complex(TypeSpec *typespec1, TypeSpec *typespec2);
     /**
      * Check if a type specification is real.
      * @param typespec the type specification to check.
