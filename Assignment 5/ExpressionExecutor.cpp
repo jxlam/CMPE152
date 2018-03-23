@@ -374,24 +374,26 @@ Object ExpressionExecutor::execute_binary_operator(
 		else if (complex_mode)
         {
 			//not sure how many operands there are with complex?? -Krish
+			//I think you are right with 4 operands (2 numbers and 2 complex)-Shervin
             float real_val1 = cast(operand1, float);
 			float im_val1 =  cast(operand2, float);
             int real_val2 = cast(operand3, float);
 			int im_val2 = cast(operand4, float);
 
-            // Integer operations.
+            // Complex operations.
             switch (node_type)
             {
-                case NT_ADD:      return real_val1 + real_val2; //how do we account for imaginary part? -Krish
-                case NT_SUBTRACT: return value1 - value2;
-                case NT_MULTIPLY: return value1 * value2;
+                case NT_ADD:      return ((real_val1 + real_val2)+(im_val1+im_val2)); //how do we account for imaginary part? -Krish Does this work??-Shervin
+                case NT_SUBTRACT: return ((real_val1 -real_val2)+(im_val1-im_val2)); //follwed what he said the rule should be-Shervin
+                case NT_MULTIPLY: return (((real_val1 * real_val2)-(im_val1 * im_val2))+((real_val1 *im_val2)+(im_val1*real_val2))); //alot of () but the logic follows the rule-Shervin
 
                 case NT_FLOAT_DIVIDE:
                 {
                     // Check for division by zero.
-                    if (value2 != 0)
+                    if ((real_val2 || im_val2) != 0)//have to check if atleast one is non-zero-Shervin
                     {
-                        return ((float) value1)/((float) value2);
+                        return ((float)(((real_val1*real_val2)+(im_val1*im_val2))+((im_val1*real_val2)+(real_val1*im_val2))))
+				/((float)((real_val2*real_val2)+(im_val2*im_val2)));//this one is ugly-Shervin
                     }
                     else
                     {
@@ -403,9 +405,10 @@ Object ExpressionExecutor::execute_binary_operator(
                 case NT_INTEGER_DIVIDE:
                 {
                     // Check for division by zero.
-                    if (value2 != 0)
+                    if ((real_val2 || im_val2) != 0)//have to check if atleast one is non-zero-Shervin
                     {
-                        return value1/value2;
+                        return (((real_val1*real_val2)+(im_val1*im_val2))+((im_val1*real_val2)+(real_val1*im_val2))))
+				/((real_val2*real_val2)+(im_val2*im_val2));//dont have to worry about the floats-Shervin
                     }
                     else
                     {
@@ -417,9 +420,10 @@ Object ExpressionExecutor::execute_binary_operator(
                 case NT_MOD:
                 {
                     // Check for division by zero.
-                    if (value2 != 0)
+                    if ((real_val2 || im_val2) != 0)//have to check if atleast one is non-zero-Shervin
                     {
-                        return value1%value2;
+                        return (((real_val1*real_val2)+(im_val1*im_val2))+((im_val1*real_val2)+(real_val1*im_val2))))
+				%((real_val2*real_val2)+(im_val2*im_val2));//i am assuming % and / are the same rule-Shervin
                     }
                     else
                     {
@@ -441,17 +445,18 @@ Object ExpressionExecutor::execute_binary_operator(
             // Float operations.
             switch (node_type)
             {
-                case NT_ADD:      return value1 + value2;
-                case NT_SUBTRACT: return value1 - value2;
-                case NT_MULTIPLY: return value1 * value2;
+                case NT_ADD:      return ((real_val1 + real_val2)+(im_val1+im_val2)); //how do we account for imaginary part? -Krish Does this work??-Shervin
+                case NT_SUBTRACT: return ((real_val1 -real_val2)+(im_val1-im_val2)); //follwed what he said the rule should be-Shervin
+                case NT_MULTIPLY: return (((real_val1 * real_val2)-(im_val1 * im_val2))+((real_val1 *im_val2)+(im_val1*real_val2))); //alot of () but the logic follows the rule-Shervin
+
 
                 case NT_FLOAT_DIVIDE:
                 {
                     // Check for division by zero.
-                    if (value2 != 0.0f)
+                    if ((real_val2 || im_val2) != 0.0f)//have to check if atleast one is non-zero for floats-Shervin
                     {
-                        return value1/value2;
-                    }
+return (((real_val1*real_val2)+(im_val1*im_val2))+((im_val1*real_val2)+(real_val1*im_val2))))
+				/((real_val2*real_val2)+(im_val2*im_val2));//dont have to worry about float for some reason -Shervin                    }
                     else 
 					{
                         error_handler.flag(node, DIVISION_BY_ZERO, this);
