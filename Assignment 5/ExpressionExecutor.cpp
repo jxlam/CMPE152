@@ -54,6 +54,7 @@ Object ExpressionExecutor::execute(ICodeNode *node)
 {
     ICodeNodeTypeImpl node_type = (ICodeNodeTypeImpl) node->get_type();
 
+
     switch (node_type)
     {
         case NT_VARIABLE:
@@ -279,13 +280,20 @@ Object ExpressionExecutor::execute_binary_operator(
     bool integer_mode = false;
     bool character_mode = false;
     bool string_mode = false;
-	bool complex_mode =  false; // Krish
+    bool complex_mode = false;
 
     if (   (typespec1 == Predefined::integer_type)
         && (typespec2 == Predefined::integer_type))
     {
         integer_mode = true;
     }
+
+    else if (   (typespec1 == Predefined::complex_type)
+          	&&  (typespec2 == Predefined::complex_type))
+   	{
+       	complex_mode = true;
+ 	}
+
     else if (   (   (typespec1 == Predefined::char_type)
                  || (   instanceof(operand1, string)
                      && (cast(operand1, string).length() == 1)))
@@ -300,12 +308,6 @@ Object ExpressionExecutor::execute_binary_operator(
     {
         string_mode = true;
     }
-	//ADD COMPLEX MODE-Krish
-	 else if ((typespec1 == Predefined::complex_type)
-        && (typespec2 == Predefined::complex_type)){
-			complex_mode = true;
-		}
-		// end complex_mode
 
     // ====================
     // Arithmetic operators
@@ -313,7 +315,93 @@ Object ExpressionExecutor::execute_binary_operator(
 
     if (ARITH_OPS.find(node_type) != ARITH_OPS.end())
     {
-        if (integer_mode)
+
+    		if (complex_mode)
+    		{
+    			int real_value1 = cast(operand1, int);
+    			int im_value1 = cast(operand1, int);
+
+    			int real_value2 = cast(operand2, int);
+    			int im_value2 = cast(operand2, int);
+
+    			switch (node_type)
+    			{
+    				case NT_ADD:
+    				{
+    					Object value = new Object(real_value1 + real_value2);
+    					Object value2 = new Object(im_value1 + im_value2);
+    					break;
+    				}
+    				case NT_SUBTRACT:
+    				{
+    					Object value = new Object(real_value1 - real_value2);
+    					Object value2 = new Object(im_value1 - im_value2);
+    					break;
+    				}
+
+    				case NT_MULTIPLY:
+    				{
+    					Object value = new Object((real_value1 * real_value2)-(im_value1 * im_value2));
+    					Object value2 = new Object((real_value1 * im_value2)-(im_value1 * real_value2));
+    		         	break;
+    				}
+    			  	case NT_FLOAT_DIVIDE:
+    			  	{
+    			  		// Check for division by zero.
+    			  		if (real_value2 != 0)
+    			       	{
+    			         	return ((float) real_value1)/((float) real_value2);
+    			      	}
+    			  		if (im_value2 != 0)
+    			  		{
+    			  		 	return ((float) im_value1)/((float) im_value2);
+    			  		}
+    			  		else
+    			  		{
+    			  			error_handler.flag(node, DIVISION_BY_ZERO, this);
+    			        		return 0;
+    			       	}
+    			  	}
+
+    			   	case NT_INTEGER_DIVIDE:
+    			  	{
+    			      	// Check for division by zero.
+    			  		if ((real_value2*real_value2)+(im_value2*im_value2) != 0)
+    			  		{
+    			  		     	Object value = new Object(real_value1/real_value2);
+    			  		     	Object value2 = new Object(im_value1/im_value2);
+    			  		}
+    				    else
+    				    {
+    			           	 error_handler.flag(node, DIVISION_BY_ZERO, this);
+    			           	Object value = new Object(0);
+    				    }
+    			  	}
+
+    			                case NT_MOD:
+    			                {
+    			                    // Check for division by zero.
+    			                    if (real_value2 != 0)
+    			                    {
+    			                    		Object value = new Object(real_value1%real_value2);
+    			                    }
+
+    			                    if (im_value2 != 0)
+    			                   	{
+    			                    		Object value = new Object(im_value1%im_value2);
+    			                  	}
+
+    			                    else
+    			                    {
+    			                        error_handler.flag(node, DIVISION_BY_ZERO, this);
+    			                        Object value = new Object(0);
+    			                    }
+    			                }
+
+    			                default: return Object();
+    		}
+
+    		if (integer_mode)
         {
             int value1 = cast(operand1, int);
             int value2 = cast(operand2, int);
@@ -370,72 +458,7 @@ Object ExpressionExecutor::execute_binary_operator(
                 default: return Object();  // empty -- shouldn't get here
             }
         }
-		//add complex arith handling -Krish
-		else if (complex_mode)
-        {
-			//not sure how many operands there are with complex?? -Krish
-			//I think you are right with 4 operands (2 numbers and 2 complex)-Shervin
-            float real_val1 = cast(operand1, float);
-			float im_val1 =  cast(operand2, float);
-            int real_val2 = cast(operand3, float);
-			int im_val2 = cast(operand4, float);
-
-            // Complex operations.
-            switch (node_type)
-            {
-                case NT_ADD:      return ((real_val1 + real_val2)+(im_val1+im_val2)); //how do we account for imaginary part? -Krish Does this work??-Shervin
-                case NT_SUBTRACT: return ((real_val1 -real_val2)+(im_val1-im_val2)); //follwed what he said the rule should be-Shervin
-                case NT_MULTIPLY: return (((real_val1 * real_val2)-(im_val1 * im_val2))+((real_val1 *im_val2)+(im_val1*real_val2))); //alot of () but the logic follows the rule-Shervin
-
-                case NT_FLOAT_DIVIDE:
-                {
-                    // Check for division by zero.
-                    if ((real_val2 || im_val2) != 0)//have to check if atleast one is non-zero-Shervin
-                    {
-                        return ((float)(((real_val1*real_val2)+(im_val1*im_val2))+((im_val1*real_val2)+(real_val1*im_val2))))
-				/((float)((real_val2*real_val2)+(im_val2*im_val2)));//this one is ugly-Shervin
-                    }
-                    else
-                    {
-                        error_handler.flag(node, DIVISION_BY_ZERO, this);
-                        return 0;
-                    }
-                }
-
-                case NT_INTEGER_DIVIDE:
-                {
-                    // Check for division by zero.
-                    if ((real_val2 || im_val2) != 0)//have to check if atleast one is non-zero-Shervin
-                    {
-                        return (((real_val1*real_val2)+(im_val1*im_val2))+((im_val1*real_val2)+(real_val1*im_val2))))
-				/((real_val2*real_val2)+(im_val2*im_val2));//dont have to worry about the floats-Shervin
-                    }
-                    else
-                    {
-                        error_handler.flag(node, DIVISION_BY_ZERO, this);
-                        return 0;
-                    }
-                }
-
-                case NT_MOD:
-                {
-                    // Check for division by zero.
-                    if ((real_val2 || im_val2) != 0)//have to check if atleast one is non-zero-Shervin
-                    {
-                        return (((real_val1*real_val2)+(im_val1*im_val2))+((im_val1*real_val2)+(real_val1*im_val2))))
-				%((real_val2*real_val2)+(im_val2*im_val2));//i am assuming % and / are the same rule-Shervin
-                    }
-                    else
-                    {
-                        error_handler.flag(node, DIVISION_BY_ZERO, this);
-                        return 0;
-                    }
-                }
-
-                default: return Object();  // empty -- shouldn't get here
-            }
-        }
-        else 
+        else
         {
             float value1 = instanceof(operand1, int) ? cast(operand1, int)
                                                      : cast(operand1, float);
@@ -445,18 +468,17 @@ Object ExpressionExecutor::execute_binary_operator(
             // Float operations.
             switch (node_type)
             {
-                case NT_ADD:      return ((real_val1 + real_val2)+(im_val1+im_val2)); //how do we account for imaginary part? -Krish Does this work??-Shervin
-                case NT_SUBTRACT: return ((real_val1 -real_val2)+(im_val1-im_val2)); //follwed what he said the rule should be-Shervin
-                case NT_MULTIPLY: return (((real_val1 * real_val2)-(im_val1 * im_val2))+((real_val1 *im_val2)+(im_val1*real_val2))); //alot of () but the logic follows the rule-Shervin
-
+                case NT_ADD:      return value1 + value2;
+                case NT_SUBTRACT: return value1 - value2;
+                case NT_MULTIPLY: return value1 * value2;
 
                 case NT_FLOAT_DIVIDE:
                 {
                     // Check for division by zero.
-                    if ((real_val2 || im_val2) != 0.0f)//have to check if atleast one is non-zero for floats-Shervin
+                    if (value2 != 0.0f)
                     {
-return (((real_val1*real_val2)+(im_val1*im_val2))+((im_val1*real_val2)+(real_val1*im_val2))))
-				/((real_val2*real_val2)+(im_val2*im_val2));//dont have to worry about float for some reason -Shervin                    }
+                        return value1/value2;
+                    }
                     else 
 					{
                         error_handler.flag(node, DIVISION_BY_ZERO, this);
@@ -569,4 +591,4 @@ return (((real_val1*real_val2)+(im_val1*im_val2))+((im_val1*real_val2)+(real_val
     }
 }
 
-}}}}  // namespace wci::backend::interpreter::executors
+}}}}}
