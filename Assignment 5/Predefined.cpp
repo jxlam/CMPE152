@@ -105,21 +105,23 @@ void Predefined::initialize_types(SymTabStack *symtab_stack)
     char_id->set_typespec(char_type);
 
     // Type complex
-	complex_id = symtab_stack->enter_local("complex");
+    	complex_id = symtab_stack->enter_local("complex");
   	complex_type = TypeFactory::create_type((TypeForm) TypeFormImpl::RECORD);
-  	complex_type->set_identifier(complex_id);
- 	complex_id->set_definition((Definition) DF_TYPE);
+    	complex_type->set_identifier(complex_id);
+   	complex_id->set_definition((Definition) DF_TYPE);
    	complex_id->set_typespec(complex_type);
-  	SymTab *csymtab = symtab_stack->push(); //creating symtab
-  	complex_type->set_attribute((TypeKey) RECORD_SYMTAB, csymtab);
+   	SymTab *csymtab = symtab_stack->push(); //creating symtab
+ 	complex_type->set_attribute((TypeKey) RECORD_SYMTAB, csymtab);
 
-  	// Complex fields re and imx.
-	SymTabEntry *re_id = csymtab->enter("re");
-	SymTabEntry *im_id = csymtab->enter("im");
-    	re_id->set_typespec(real_type);
-    	im_id->set_typespec(real_type);
-	re_id->set_definition((Definition) DF_FIELD);
-	im_id->set_definition((Definition) DF_FIELD);
+ 	// Complex fields re and imx.
+    	SymTabEntry *re_id = csymtab->enter("re");
+    	SymTabEntry *im_id = csymtab->enter("im");
+  	re_id->set_typespec(real_type);
+  	im_id->set_typespec(real_type);
+    	re_id->set_definition((Definition) DF_FIELD);
+    	im_id->set_definition((Definition) DF_FIELD);
+    	symtab_stack->pop();
+
 
     // Undefined type.
     undefined_type = TypeFactory::create_type((TypeForm) TF_SCALAR);
