@@ -1,0 +1,5 @@
+tot1 1potato;
+tot2 2potato;
+J Vector;
+
+J = tot1 * tot2;
