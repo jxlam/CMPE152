@@ -1,7 +1,7 @@
 //Modify this to fit pythons standards
-//program : header block '.' ; //python doesnt use anything to begin the program so I think we can comment this out -Krisj
+program : block  ; //python doesnt use anything to begin the program so I think we can comment some of this out -Krish
 //header  : PROGRAM IDENTIFIER ';' ;
-//block   : declarations compound_stmt ;
+block   : declarations compound_stmt ;
 
 declarations : VAR decl_list ';' ;
 decl_list    : decl ( ';' decl )* ;
