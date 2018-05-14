@@ -174,25 +174,41 @@ antlrcpp::Any Pass1Visitor::visitType(GheyParser::TypeContext *ctx)
     return visitChildren(ctx);
 }
 
-antlrcpp::Any Pass1Visitor::visitAdd_sub_op(GheyParser::Add_sub_opContext *ctx)
+antlrcpp::Any Pass1Visitor::visitVariable(GheyParser::VariableContext *ctx)
 {
-//    cout << "=== visitAddSubExpr: " + ctx->getText() << endl;
+//    cout << "=== visitVariableExpr: " + ctx->getText() << endl;
+
+    string variable_name = ctx->variable()->IDENTIFIER()->toString();
+    SymTabEntry *variable_id = symtab_stack->lookup(variable_name);
+
+    ctx->type = variable_id->get_typespec();
+    return visitChildren(ctx);
+}
+
+antlrcpp::Any Pass1Visitor::visitExpr(GheyParser::ExprContext *ctx)
+{
+//    cout << "=== visitParenExpr: " + ctx->getText() << endl;
 
     auto value = visitChildren(ctx);
+    ctx->type = ctx->expr()->type;
+    return value;
+}
 
-    TypeSpec *type1 = ctx->exp(0)->type;
-    TypeSpec *type2 = ctx->expr(1)->type;
+antlrcpp::Any Pass1Visitor::visitNumber(GheyParser::NumberContext *ctx)
+{
+//    cout << "=== visitSignedNumber: " + ctx->getText() << endl;
 
-    bool integer_mode =    (type1 == Predefined::integer_type)
-                        && (type2 == Predefined::integer_type);
-    bool real_mode    =    (type1 == Predefined::real_type)
-                        && (type2 == Predefined::real_type);
+    auto value = visit(ctx->num());
+    ctx->type = ctx->number()->type;
+    return value;
+}
 
-    TypeSpec *type = integer_mode ? Predefined::integer_type
-                   : real_mode    ? Predefined::real_type
-                   :                nullptr;
-    ctx->type = type;
+antlrcpp::Any Pass1Visitor::visitSign(GheyParser::SignContext *ctx)
+{
+//    cout << "=== visitUnsignedNumberExpr: " + ctx->getText() << endl;
 
+    auto value = visit(ctx->number());
+    ctx->type = ctx->sign()->type;
     return value;
 }
 
@@ -218,17 +234,53 @@ antlrcpp::Any Pass1Visitor::visitMul_div_op(GheyParser::Mul_div_opContext *ctx)
     return value;
 }
 
-antlrcpp::Any Pass1Visitor::visitVariableExpr(GheyParser::VariableExprContext *ctx)
+antlrcpp::Any Pass1Visitor::visitAdd_sub_op(GheyParser::Add_sub_opContext *ctx)
 {
-//    cout << "=== visitVariableExpr: " + ctx->getText() << endl;
+//    cout << "=== visitAddSubExpr: " + ctx->getText() << endl;
 
-    string variable_name = ctx->variable()->IDENTIFIER()->toString();
-    SymTabEntry *variable_id = symtab_stack->lookup(variable_name);
+    auto value = visitChildren(ctx);
 
-    ctx->type = variable_id->get_typespec();
-    return visitChildren(ctx);
+    TypeSpec *type1 = ctx->exp(0)->type;
+    TypeSpec *type2 = ctx->expr(1)->type;
+
+    bool integer_mode =    (type1 == Predefined::integer_type)
+                        && (type2 == Predefined::integer_type);
+    bool real_mode    =    (type1 == Predefined::real_type)
+                        && (type2 == Predefined::real_type);
+
+    TypeSpec *type = integer_mode ? Predefined::integer_type
+                   : real_mode    ? Predefined::real_type
+                   :                nullptr;
+    ctx->type = type;
+
+    return value;
 }
 
+antlrcpp::Any Pass1Visitor::visitRel_op(GheyParser::Rel_opContext *ctx)
+{
+//    cout << "=== visitAddSubExpr: " + ctx->getText() << endl;
+
+    auto value = visitChildren(ctx);
+
+    TypeSpec *type1 = ctx->exp(0)->type;
+    TypeSpec *type2 = ctx->expr(1)->type;
+
+    bool integer_mode =    (type1 == Predefined::integer_type)
+                        && (type2 == Predefined::integer_type);
+    bool real_mode    =    (type1 == Predefined::real_type)
+                        && (type2 == Predefined::real_type);
+
+    TypeSpec *type = integer_mode ? Predefined::integer_type
+                   : real_mode    ? Predefined::real_type
+                   :                nullptr;
+    ctx->type = type;
+
+    return value;
+}
+
+
+
+/*
 antlrcpp::Any Pass1Visitor::visitSignedNumberExpr(GheyParser::SignedNumberExprContext *ctx)
 {
 //    cout << "=== visitSignedNumberExpr: " + ctx->getText() << endl;
@@ -236,27 +288,11 @@ antlrcpp::Any Pass1Visitor::visitSignedNumberExpr(GheyParser::SignedNumberExprCo
     auto value = visitChildren(ctx);
     ctx->type = ctx->signedNumber()->type;
     return value;
-}
+}z*/
 
-antlrcpp::Any Pass1Visitor::visitSignedNumber(GheyParser::SignedNumberContext *ctx)
-{
-//    cout << "=== visitSignedNumber: " + ctx->getText() << endl;
 
-    auto value = visit(ctx->number());
-    ctx->type = ctx->number()->type;
-    return value;
-}
-
-antlrcpp::Any Pass1Visitor::visitUnsignedNumberExpr(GheyParser::UnsignedNumberExprContext *ctx)
-{
-//    cout << "=== visitUnsignedNumberExpr: " + ctx->getText() << endl;
-
-    auto value = visit(ctx->number());
-    ctx->type = ctx->number()->type;
-    return value;
-}
-
-antlrcpp::Any Pass1Visitor::visitIntegerConst(GheyParser::IntegerConstContext *ctx)
+/*
+antlrcpp::Any Pass1Visitor::visitInteger(GheyParser::IntegerContext *ctx)
 {
 //    cout << "=== visitIntegerConst: " + ctx->getText() << endl;
 
@@ -270,13 +306,6 @@ antlrcpp::Any Pass1Visitor::visitFloatConst(GheyParser::FloatConstContext *ctx)
 
     ctx->type = Predefined::real_type;
     return visitChildren(ctx);
-}
+}*/
 
-antlrcpp::Any Pass1Visitor::visitParenExpr(GheyParser::ParenExprContext *ctx)
-{
-//    cout << "=== visitParenExpr: " + ctx->getText() << endl;
 
-    auto value = visitChildren(ctx);
-    ctx->type = ctx->expr()->type;
-    return value;
-}
