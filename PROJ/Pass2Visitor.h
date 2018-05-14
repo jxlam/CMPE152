@@ -8,14 +8,14 @@
 #include "wci/intermediate/SymTabEntry.h"
 #include "wci/intermediate/TypeSpec.h"
 
-#include "Pcl2BaseVisitor.h"
+#include "GheyBaseVisitor.h"
 #include "antlr4-runtime.h"
 #include "GheyVisitor.h"
 
 using namespace wci;
 using namespace wci::intermediate;
 
-class Pass2Visitor : public Pcl2BaseVisitor
+class Pass2Visitor : public GheyBaseVisitor
 {
 private:
 	string program_name;
