@@ -18,10 +18,11 @@ Pass2Visitor::Pass2Visitor(ostream& j_file)
 
 Pass2Visitor::~Pass2Visitor() {}
 
-antlrcpp::Any Pass2Visitor::visitProgram(Pcl2Parser::ProgramContext *ctx)
+antlrcpp::Any Pass2Visitor::visitProg(GheyParser::ProgContext *ctx)
 {
     auto value = visitChildren(ctx);
     //j_file.close();
+
     return value;
 }
 
