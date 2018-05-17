@@ -1,12 +1,21 @@
 grammar Ghey;
 
-prog : stmt+ ; 
+@header {
+#include "wci/intermediate/TypeSpec.h"
+using namespace wci::intermediate;
+}
+
+prog 		: header mainBlock '.' ; 
+header		: PROG IDENTIFIER ';';
+mainBlock 	: block;
+block		: stmt	
+			| ('return' expr NEWLINE)?
+			;
 
 var_decl      : IDENTIFIER type ;
 
 type : '1potato'  
-     | '2potato' 
-     | '3potato'    
+     | '2potato'    
      | 'Integer'   
      | 'Vector'             
      ;
@@ -14,21 +23,27 @@ type : '1potato'
 stmt : compound_stmt    
      | assignment_stmt     
      | if_stmt   
+     | while_loop
      | expr ';'*   
      | var_decl ';'*                        
      ;
      
 compound_stmt:
-	'[' (stmt ';')* ']' ;
+	'{' (stmt ';')* '}' ;
 	
 assignment_stmt:
-	IDENTIFIER '=' expr ';'* ;
+	var_decl '=' expr ';'* ;
 	
 if_stmt:
 	IF ('('expr')') compound_stmt (ELSE compound_stmt)? ;
+	
+while_loop:
+	WHILE expr block;
 
 variable : IDENTIFIER ;
-expr : expr mul_div_op expr    
+
+expr locals [ TypeSpec *type = nullptr ]
+	 : expr mul_div_op expr    
      | expr add_sub_op expr     
      | expr rel_op expr         
      | number                   
@@ -36,17 +51,22 @@ expr : expr mul_div_op expr
      | '(' expr ')'             
      ;
      
-
-number : sign? NUM ;
+number locals [ TypeSpec *type = nullptr ] 
+	 : sign NUM
+	 ;
+	 
 sign   : '+' | '-' ;
      
+    
 mul_div_op : MUL_OP | DIV_OP ;
 add_sub_op : ADD_OP | SUB_OP ;
 rel_op     : EQ_OP | NEQ_OP | LT_OP | LE_OP | GT_OP | GE_OP ;
 
+PROG: 'PROG';
 
 IF      : 'IF' ;
 ELSE    : 'ELSE';
+WHILE	: 'WHILE';
 
 IDENTIFIER : [a-zA-Z][a-zA-Z0-9]* ;
 NUM : [0-9]+;
