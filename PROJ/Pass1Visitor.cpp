@@ -37,68 +37,37 @@ antlrcpp::Any Pass1Visitor::visitProg(GheyParser::ProgContext *ctx)
     CrossReferencer cross_referencer;
     cross_referencer.print(symtab_stack);
 
-    		program_id = symtab_stack->enter_local(program_name);
-    		program_id->set_definition((Definition)DF_PROGRAM);
-   		program_id->set_attribute((SymTabKey) ROUTINE_SYMTAB,
-                                  new EntryValue(symtab_stack->push()));
-        symtab_stack->set_program_id(program_id);
-
-        // Create the assembly output file.
-        j_file.open(program_name + ".j");
-        if (j_file.fail())
-        {
-                cout << "***** Cannot open assembly file." << endl;
-                exit(-99);
-        }
-
-        // Emit the program header.
-        j_file << ".class public " << program_name << endl;
-        j_file << ".super java/lang/Object" << endl;
-
-        // Emit the RunTimer and PascalTextIn fields.
-        j_file << endl;
-        j_file << ".field private static _runTimer LRunTimer;" << endl;
-        j_file << ".field private static _standardIn LPascalTextIn;" << endl;
-
-
-
-
-
     return value;
-    return visitChildren(ctx);
 }
 
-/*antlrcpp::Any Pass1Visitor::visitHeader(GheyParser::HeaderContext *ctx)
+antlrcpp::Any Pass1Visitor::visitHeader(GheyParser::HeaderContext *ctx)
 {
-//    cout << "=== visitHeader: " + ctx->getText() << endl;
+	 string program_name = ctx->IDENTIFIER()->toString();
+	 program_id = symtab_stack->enter_local(program_name);
+	 program_id->set_definition((Definition)DF_PROGRAM);
+	 program_id->set_attribute((SymTabKey) ROUTINE_SYMTAB,
+                                  new EntryValue(symtab_stack->push()));
+	 symtab_stack->set_program_id(program_id);
 
-    string program_name = ctx->IDENTIFIER()->toString();
+     // Create the assembly output file.
+	 j_file.open(program_name + ".j");
+	 if (j_file.fail())
+	 {
+		 cout << "***** Cannot open assembly file." << endl;
+		 exit(-99);
+	 }
 
-    program_id = symtab_stack->enter_local(program_name);
-    program_id->set_definition((Definition)DF_PROGRAM);
-    program_id->set_attribute((SymTabKey) ROUTINE_SYMTAB,
-                              new EntryValue(symtab_stack->push()));
-    symtab_stack->set_program_id(program_id);
+	 // Emit the program header.
+	 j_file << ".class public " << program_name << endl;
+	 j_file << ".super java/lang/Object" << endl;
 
-    // Create the assembly output file.
-    j_file.open(program_name + ".j");
-    if (j_file.fail())
-    {
-            cout << "***** Cannot open assembly file." << endl;
-            exit(-99);
-    }
-
-    // Emit the program header.
-    j_file << ".class public " << program_name << endl;
-    j_file << ".super java/lang/Object" << endl;
-
-    // Emit the RunTimer and PascalTextIn fields.
-    j_file << endl;
-    j_file << ".field private static _runTimer LRunTimer;" << endl;
-    j_file << ".field private static _standardIn LPascalTextIn;" << endl;
+	 // Emit the RunTimer and PascalTextIn fields.
+	j_file << endl;
+	j_file << ".field private static _runTimer LRunTimer;" << endl;
+	j_file << ".field private static _standardIn LPascalTextIn;" << endl;
 
     return visitChildren(ctx);
-}*/
+}
 
 antlrcpp::Any Pass1Visitor::visitVar_decl(GheyParser::Var_declContext *ctx)
 {
@@ -124,14 +93,14 @@ antlrcpp::Any Pass1Visitor::visitVar_decl(GheyParser::Var_declContext *ctx)
 }
 
 
-antlrcpp::Any Pass1Visitor::visitType(GheyParser::TypeContext *ctx)
+antlrcpp::Any Pass1Visitor::visitTypes(GheyParser::TypesContext *ctx)
 {
 //    cout << "=== visitTypeId: " + ctx->getText() << endl;
 
     TypeSpec *type;
     string type_indicator;
 
-    string type_name = ctx; //'->IDENTIFIER()->toString();
+    string type_name = ctx->toString();
     if (type_name == "integer")
     {
         type = Predefined::integer_type;
@@ -174,10 +143,9 @@ antlrcpp::Any Pass1Visitor::visitType(GheyParser::TypeContext *ctx)
     return visitChildren(ctx);
 }
 
-antlrcpp::Any Pass1Visitor::visitVariable(GheyParser::VariableContext *ctx)
+antlrcpp::Any Pass1Visitor::visitVariableExpr(GheyParser::VariableExprContext *ctx)
 {
 //    cout << "=== visitVariableExpr: " + ctx->getText() << endl;
-
     string variable_name = ctx->variable()->IDENTIFIER()->toString();
     SymTabEntry *variable_id = symtab_stack->lookup(variable_name);
 
@@ -185,7 +153,7 @@ antlrcpp::Any Pass1Visitor::visitVariable(GheyParser::VariableContext *ctx)
     return visitChildren(ctx);
 }
 
-antlrcpp::Any Pass1Visitor::visitExpr(GheyParser::ExprContext *ctx)
+antlrcpp::Any Pass1Visitor::visitParenExpr(GheyParser::ParenExprContext *ctx)
 {
 //    cout << "=== visitParenExpr: " + ctx->getText() << endl;
 
@@ -194,25 +162,16 @@ antlrcpp::Any Pass1Visitor::visitExpr(GheyParser::ExprContext *ctx)
     return value;
 }
 
-antlrcpp::Any Pass1Visitor::visitNumber(GheyParser::NumberContext *ctx)
+antlrcpp::Any Pass1Visitor::visitNumberExpr(GheyParser::NumberExprContext *ctx)
 {
 //    cout << "=== visitSignedNumber: " + ctx->getText() << endl;
 
-    auto value = visit(ctx->num());
+    auto value = visit(ctx->number());
     ctx->type = ctx->number()->type;
     return value;
 }
 
-antlrcpp::Any Pass1Visitor::visitSign(GheyParser::SignContext *ctx)
-{
-//    cout << "=== visitUnsignedNumberExpr: " + ctx->getText() << endl;
-
-    auto value = visit(ctx->number());
-    ctx->type = ctx->sign()->type;
-    return value;
-}
-
-antlrcpp::Any Pass1Visitor::visitMul_div_op(GheyParser::Mul_div_opContext *ctx)
+antlrcpp::Any Pass1Visitor::visitMul_div_opExpr(GheyParser::Mul_div_opExprContext *ctx)
 {
 //    cout << "=== visitMulDivExpr: " + ctx->getText() << endl;
 
@@ -234,13 +193,13 @@ antlrcpp::Any Pass1Visitor::visitMul_div_op(GheyParser::Mul_div_opContext *ctx)
     return value;
 }
 
-antlrcpp::Any Pass1Visitor::visitAdd_sub_op(GheyParser::Add_sub_opContext *ctx)
+antlrcpp::Any Pass1Visitor::visitAdd_sub_opExpr(GheyParser::Add_sub_opExprContext *ctx)
 {
 //    cout << "=== visitAddSubExpr: " + ctx->getText() << endl;
 
     auto value = visitChildren(ctx);
 
-    TypeSpec *type1 = ctx->exp(0)->type;
+    TypeSpec *type1 = ctx->expr(0)->type;
     TypeSpec *type2 = ctx->expr(1)->type;
 
     bool integer_mode =    (type1 == Predefined::integer_type)
@@ -256,13 +215,13 @@ antlrcpp::Any Pass1Visitor::visitAdd_sub_op(GheyParser::Add_sub_opContext *ctx)
     return value;
 }
 
-antlrcpp::Any Pass1Visitor::visitRel_op(GheyParser::Rel_opContext *ctx)
+antlrcpp::Any Pass1Visitor::visitRel_opExpr(GheyParser::Rel_opExprContext *ctx)
 {
-//    cout << "=== visitAddSubExpr: " + ctx->getText() << endl;
+
 
     auto value = visitChildren(ctx);
 
-    TypeSpec *type1 = ctx->exp(0)->type;
+    TypeSpec *type1 = ctx->expr(0)->type;
     TypeSpec *type2 = ctx->expr(1)->type;
 
     bool integer_mode =    (type1 == Predefined::integer_type)
@@ -278,34 +237,7 @@ antlrcpp::Any Pass1Visitor::visitRel_op(GheyParser::Rel_opContext *ctx)
     return value;
 }
 
-
-
-/*
-antlrcpp::Any Pass1Visitor::visitSignedNumberExpr(GheyParser::SignedNumberExprContext *ctx)
-{
-//    cout << "=== visitSignedNumberExpr: " + ctx->getText() << endl;
-
-    auto value = visitChildren(ctx);
-    ctx->type = ctx->signedNumber()->type;
-    return value;
-}z*/
-
-
-/*
-antlrcpp::Any Pass1Visitor::visitInteger(GheyParser::IntegerContext *ctx)
-{
-//    cout << "=== visitIntegerConst: " + ctx->getText() << endl;
-
-    ctx->type = Predefined::integer_type;
-    return visitChildren(ctx);
-}
-
-antlrcpp::Any Pass1Visitor::visitFloatConst(GheyParser::FloatConstContext *ctx)
-{
-//    cout << "=== visitFloatConst: " + ctx->getText() << endl;
-
-    ctx->type = Predefined::real_type;
-    return visitChildren(ctx);
-}*/
-
-
+// expr
+//type
+//sign
+//num or number?
