@@ -21,7 +21,6 @@ private:
     SymTabEntry *program_id;
     vector<SymTabEntry *> variable_id_list;
     ofstream j_file;
-
 public:
     Pass1Visitor();
     virtual ~Pass1Visitor();
@@ -29,15 +28,15 @@ public:
     ostream& get_assembly_file();
 
     antlrcpp::Any visitProg(GheyParser::ProgContext *ctx) override;
+    antlrcpp::Any visitHeader(GheyParser::HeaderContext *ctx) override;
     antlrcpp::Any visitVar_decl(GheyParser::Var_declContext *ctx) override;
-    antlrcpp::Any visitType(GheyParser::TypeContext *ctx) override;
-    antlrcpp::Any visitVariable(GheyParser::VariableContext *ctx) override;
-    antlrcpp::Any visitExpr(GheyParser::ExprContext *ctx) override;
-    antlrcpp::Any visitNumber(GheyParser::NumberContext *ctx) override;
-    antlrcpp::Any visitSign(GheyParser::SignContext *ctx) override;
-    antlrcpp::Any visitMul_div_op(GheyParser::Mul_div_opContext *ctx) override;
-    antlrcpp::Any visitAdd_sub_op(GheyParser::Add_sub_opContext *ctx) override;
-    antlrcpp::Any visitRel_op(GheyParser::Rel_opContext *ctx) override;
+    antlrcpp::Any visitTypes(GheyParser::TypesContext *ctx) override;
+    antlrcpp::Any visitVariableExpr(GheyParser::VariableExprContext *ctx) override;
+    antlrcpp::Any visitParenExpr(GheyParser::ParenExprContext *ctx) override;
+    antlrcpp::Any visitNumberExpr(GheyParser::NumberExprContext *ctx) override;
+    antlrcpp::Any visitMul_div_opExpr(GheyParser::Mul_div_opExprContext *ctx) override;
+    antlrcpp::Any visitAdd_sub_opExpr(GheyParser::Add_sub_opExprContext *ctx) override;
+    antlrcpp::Any visitRel_opExpr(GheyParser::Rel_opExprContext *ctx) override;
 };
 
 #endif
