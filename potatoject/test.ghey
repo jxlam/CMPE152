@@ -1,0 +1,6 @@
+PROG test;
+
+hello 1potato; 
+hello = '1';
+.
+
