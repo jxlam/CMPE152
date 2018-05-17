@@ -12,9 +12,9 @@ block		: stmt
 			| ('return' expr NEWLINE)?
 			;
 
-var_decl      : IDENTIFIER type ;
+var_decl      : IDENTIFIER types ;
 
-type : '1potato'  
+types : '1potato'  
      | '2potato'    
      | 'Integer'   
      | 'Vector'             
@@ -43,24 +43,25 @@ while_loop:
 variable : IDENTIFIER ;
 
 expr locals [ TypeSpec *type = nullptr ]
-	 : expr mul_div_op expr    
-     | expr add_sub_op expr     
-     | expr rel_op expr         
-     | number                   
-     | IDENTIFIER               
-     | '(' expr ')'             
+	 : expr mul_div_op expr    # mul_div_opExpr
+     | expr add_sub_op expr    # add_sub_opExpr
+     | expr rel_op expr        # rel_opExpr
+     | number                  # numberExpr
+     | variable                # variableExpr
+     | '(' expr ')'            # parenExpr
      ;
      
+mul_div_op : MUL_OP | DIV_OP ;
+add_sub_op : ADD_OP | SUB_OP ;
+rel_op     : EQ_OP | NEQ_OP | LT_OP | LE_OP | GT_OP | GE_OP ;
+     
 number locals [ TypeSpec *type = nullptr ] 
-	 : sign NUM
+	 : sign? NUM
 	 ;
 	 
 sign   : '+' | '-' ;
      
-    
-mul_div_op : MUL_OP | DIV_OP ;
-add_sub_op : ADD_OP | SUB_OP ;
-rel_op     : EQ_OP | NEQ_OP | LT_OP | LE_OP | GT_OP | GE_OP ;
+ 
 
 PROG: 'PROG';
 
