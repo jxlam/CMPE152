@@ -1,24 +1,22 @@
-public String getTool(){
+string getTool(){
   return tool;
 }
 
-public String getWinner(){
+string getWinner(){
   return winner;
 }
 
-public String getLoser(){
+string getLoser(){
   return loser;
 }
 
-public boolean isTie(){
+bool isTie(){
   return tie;
 }
 
-public void print(){
-  System.out.println("Winner:" + getWinner());
-  System.out.println("Loser:" + getLoser());
-  if (isTie()){
-    System.out.println("Tie!");
-  }
+void print(){
+  cout << "Winner: "<< winner << endl;
+  cout << "Loser: "<< loser << endl;
+  cout << "Tie?: " << tie <<endl
   
 }
