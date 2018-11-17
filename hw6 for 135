@@ -1,0 +1,24 @@
+public String getTool(){
+  return tool;
+}
+
+public String getWinner(){
+  return winner;
+}
+
+public String getLoser(){
+  return loser;
+}
+
+public boolean isTie(){
+  return tie;
+}
+
+public void print(){
+  System.out.println("Winner:" + getWinner());
+  System.out.println("Loser:" + getLoser());
+  if (isTie()){
+    System.out.println("Tie!");
+  }
+  
+}
